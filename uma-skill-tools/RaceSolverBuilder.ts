@@ -856,7 +856,7 @@ export class RaceSolverBuilder {
 				trigger: triggers[sdi][i % triggers[sdi].length],
 				extraCondition: sd.extraCondition,
 				effects: sd.effects,
-				originWisdom: this._skills[sdi].originWisdom
+				originWisdom: this._skills[sdi]?.originWisdom
 			}));
 
 			const hpRng = new Rule30CARng(this._rng.int32());

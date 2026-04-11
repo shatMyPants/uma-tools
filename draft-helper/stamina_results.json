@@ -1,0 +1,446 @@
+{
+  "10103": {
+    "distance": 1800,
+    "label": "Course 10103",
+    "Senkou": 750,
+    "Oikomi": 700
+  },
+  "10104": {
+    "distance": 2000,
+    "label": "Course 10104",
+    "Senkou": 900,
+    "Oikomi": 850
+  },
+  "10105": {
+    "distance": 2600,
+    "label": "Course 10105",
+    "Senkou": 1500,
+    "Oikomi": 1300
+  },
+  "10107": {
+    "distance": 1700,
+    "label": "Course 10107",
+    "Senkou": 700,
+    "Oikomi": 650
+  },
+  "10108": {
+    "distance": 2400,
+    "label": "Course 10108",
+    "Senkou": 1150,
+    "Oikomi": 1050
+  },
+  "10203": {
+    "distance": 1800,
+    "label": "Course 10203",
+    "Senkou": 650,
+    "Oikomi": 650
+  },
+  "10204": {
+    "distance": 2000,
+    "label": "Course 10204",
+    "Senkou": 800,
+    "Oikomi": 750
+  },
+  "10205": {
+    "distance": 2600,
+    "label": "Course 10205",
+    "Senkou": 1200,
+    "Oikomi": 1150
+  },
+  "10207": {
+    "distance": 1700,
+    "label": "Course 10207",
+    "Senkou": 600,
+    "Oikomi": 600
+  },
+  "10208": {
+    "distance": 2400,
+    "label": "Course 10208",
+    "Senkou": 1150,
+    "Oikomi": 1100
+  },
+  "10304": {
+    "distance": 1600,
+    "label": "Course 10304",
+    "Senkou": 600,
+    "Oikomi": 600
+  },
+  "10305": {
+    "distance": 1800,
+    "label": "Course 10305",
+    "Senkou": 650,
+    "Oikomi": 600
+  },
+  "10306": {
+    "distance": 2000,
+    "label": "Course 10306",
+    "Senkou": 900,
+    "Oikomi": 850
+  },
+  "10307": {
+    "distance": 2000,
+    "label": "Course 10307",
+    "Senkou": 750,
+    "Oikomi": 750
+  },
+  "10308": {
+    "distance": 2200,
+    "label": "Course 10308",
+    "Senkou": 1050,
+    "Oikomi": 950
+  },
+  "10309": {
+    "distance": 2400,
+    "label": "Course 10309",
+    "Senkou": 1150,
+    "Oikomi": 1050
+  },
+  "10311": {
+    "distance": 1800,
+    "label": "Course 10311",
+    "Senkou": 750,
+    "Oikomi": 700
+  },
+  "10312": {
+    "distance": 2500,
+    "label": "Course 10312",
+    "Senkou": 1200,
+    "Oikomi": 1150
+  },
+  "10402": {
+    "distance": 1800,
+    "label": "Course 10402",
+    "Senkou": 750,
+    "Oikomi": 700
+  },
+  "10403": {
+    "distance": 2000,
+    "label": "Course 10403",
+    "Senkou": 900,
+    "Oikomi": 850
+  },
+  "10404": {
+    "distance": 2600,
+    "label": "Course 10404",
+    "Senkou": 1350,
+    "Oikomi": 1200
+  },
+  "10406": {
+    "distance": 1700,
+    "label": "Course 10406",
+    "Senkou": 600,
+    "Oikomi": 600
+  },
+  "10407": {
+    "distance": 2400,
+    "label": "Course 10407",
+    "Senkou": 1150,
+    "Oikomi": 1100
+  },
+  "10502": {
+    "distance": 1600,
+    "label": "Course 10502",
+    "Senkou": 600,
+    "Oikomi": 600
+  },
+  "10503": {
+    "distance": 1800,
+    "label": "Course 10503",
+    "Senkou": 600,
+    "Oikomi": 600
+  },
+  "10504": {
+    "distance": 2000,
+    "label": "Course 10504",
+    "Senkou": 700,
+    "Oikomi": 700
+  },
+  "10505": {
+    "distance": 2200,
+    "label": "Course 10505",
+    "Senkou": 900,
+    "Oikomi": 850
+  },
+  "10506": {
+    "distance": 2500,
+    "label": "Course 10506",
+    "Senkou": 1050,
+    "Oikomi": 1000
+  },
+  "10507": {
+    "distance": 3600,
+    "label": "Course 10507",
+    "Senkou": -1,
+    "Oikomi": 2400
+  },
+  "10509": {
+    "distance": 1800,
+    "label": "Course 10509",
+    "Senkou": 700,
+    "Oikomi": 650
+  },
+  "10510": {
+    "distance": 2400,
+    "label": "Course 10510",
+    "Senkou": 1150,
+    "Oikomi": 1100
+  },
+  "10511": {
+    "distance": 2500,
+    "label": "Course 10511",
+    "Senkou": 1200,
+    "Oikomi": 1150
+  },
+  "10602": {
+    "distance": 1600,
+    "label": "Course 10602",
+    "Senkou": 600,
+    "Oikomi": 600
+  },
+  "10603": {
+    "distance": 1800,
+    "label": "Course 10603",
+    "Senkou": 650,
+    "Oikomi": 650
+  },
+  "10604": {
+    "distance": 2000,
+    "label": "Course 10604",
+    "Senkou": 750,
+    "Oikomi": 700
+  },
+  "10605": {
+    "distance": 2300,
+    "label": "Course 10605",
+    "Senkou": 1000,
+    "Oikomi": 950
+  },
+  "10606": {
+    "distance": 2400,
+    "label": "Course 10606",
+    "Senkou": 1050,
+    "Oikomi": 1000
+  },
+  "10607": {
+    "distance": 2500,
+    "label": "Course 10607",
+    "Senkou": 1150,
+    "Oikomi": 1100
+  },
+  "10608": {
+    "distance": 3400,
+    "label": "Course 10608",
+    "Senkou": 2400,
+    "Oikomi": 2200
+  },
+  "10611": {
+    "distance": 1600,
+    "label": "Course 10611",
+    "Senkou": 600,
+    "Oikomi": 600
+  },
+  "10612": {
+    "distance": 2100,
+    "label": "Course 10612",
+    "Senkou": 850,
+    "Oikomi": 800
+  },
+  "10613": {
+    "distance": 2400,
+    "label": "Course 10613",
+    "Senkou": 1150,
+    "Oikomi": 1100
+  },
+  "10703": {
+    "distance": 1600,
+    "label": "Course 10703",
+    "Senkou": 600,
+    "Oikomi": 600
+  },
+  "10704": {
+    "distance": 2000,
+    "label": "Course 10704",
+    "Senkou": 650,
+    "Oikomi": 650
+  },
+  "10705": {
+    "distance": 2200,
+    "label": "Course 10705",
+    "Senkou": 800,
+    "Oikomi": 800
+  },
+  "10708": {
+    "distance": 1800,
+    "label": "Course 10708",
+    "Senkou": 600,
+    "Oikomi": 600
+  },
+  "10709": {
+    "distance": 1900,
+    "label": "Course 10709",
+    "Senkou": 800,
+    "Oikomi": 750
+  },
+  "10804": {
+    "distance": 1600,
+    "label": "Course 10804",
+    "Senkou": 600,
+    "Oikomi": 600
+  },
+  "10805": {
+    "distance": 1600,
+    "label": "Course 10805",
+    "Senkou": 600,
+    "Oikomi": 600
+  },
+  "10806": {
+    "distance": 1800,
+    "label": "Course 10806",
+    "Senkou": 700,
+    "Oikomi": 650
+  },
+  "10807": {
+    "distance": 2000,
+    "label": "Course 10807",
+    "Senkou": 850,
+    "Oikomi": 800
+  },
+  "10808": {
+    "distance": 2200,
+    "label": "Course 10808",
+    "Senkou": 950,
+    "Oikomi": 900
+  },
+  "10809": {
+    "distance": 2400,
+    "label": "Course 10809",
+    "Senkou": 1150,
+    "Oikomi": 1100
+  },
+  "10810": {
+    "distance": 3000,
+    "label": "Course 10810",
+    "Senkou": 1900,
+    "Oikomi": 1750
+  },
+  "10811": {
+    "distance": 3200,
+    "label": "Course 10811",
+    "Senkou": 2100,
+    "Oikomi": 1900
+  },
+  "10814": {
+    "distance": 1800,
+    "label": "Course 10814",
+    "Senkou": 650,
+    "Oikomi": 650
+  },
+  "10815": {
+    "distance": 1900,
+    "label": "Course 10815",
+    "Senkou": 700,
+    "Oikomi": 700
+  },
+  "10903": {
+    "distance": 1600,
+    "label": "Course 10903",
+    "Senkou": 600,
+    "Oikomi": 600
+  },
+  "10904": {
+    "distance": 1800,
+    "label": "Course 10904",
+    "Senkou": 700,
+    "Oikomi": 700
+  },
+  "10905": {
+    "distance": 2000,
+    "label": "Course 10905",
+    "Senkou": 800,
+    "Oikomi": 750
+  },
+  "10906": {
+    "distance": 2200,
+    "label": "Course 10906",
+    "Senkou": 900,
+    "Oikomi": 850
+  },
+  "10907": {
+    "distance": 2400,
+    "label": "Course 10907",
+    "Senkou": 1100,
+    "Oikomi": 1050
+  },
+  "10908": {
+    "distance": 2600,
+    "label": "Course 10908",
+    "Senkou": 1150,
+    "Oikomi": 1100
+  },
+  "10909": {
+    "distance": 3000,
+    "label": "Course 10909",
+    "Senkou": 1550,
+    "Oikomi": 1400
+  },
+  "10912": {
+    "distance": 1800,
+    "label": "Course 10912",
+    "Senkou": 600,
+    "Oikomi": 600
+  },
+  "10913": {
+    "distance": 2000,
+    "label": "Course 10913",
+    "Senkou": 650,
+    "Oikomi": 650
+  },
+  "10914": {
+    "distance": 3200,
+    "label": "Course 10914",
+    "Senkou": 1900,
+    "Oikomi": 1750
+  },
+  "11002": {
+    "distance": 1800,
+    "label": "Course 11002",
+    "Senkou": 700,
+    "Oikomi": 700
+  },
+  "11003": {
+    "distance": 2000,
+    "label": "Course 11003",
+    "Senkou": 900,
+    "Oikomi": 850
+  },
+  "11004": {
+    "distance": 2600,
+    "label": "Course 11004",
+    "Senkou": 1450,
+    "Oikomi": 1250
+  },
+  "11006": {
+    "distance": 1700,
+    "label": "Course 11006",
+    "Senkou": 650,
+    "Oikomi": 600
+  },
+  "11007": {
+    "distance": 2400,
+    "label": "Course 11007",
+    "Senkou": 1150,
+    "Oikomi": 1050
+  },
+  "11102": {
+    "distance": 1800,
+    "label": "Course 11102",
+    "Senkou": 750,
+    "Oikomi": 700
+  },
+  "11103": {
+    "distance": 2000,
+    "label": "Course 11103",
+    "Senkou": 900,
+    "Oikomi": 850
+  }
+}
