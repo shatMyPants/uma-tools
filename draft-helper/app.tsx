@@ -82,6 +82,15 @@ const ACCEL_TYPE_COLORS: Record<string, { bg: string; color: string; border: str
   'downhill': { bg: 'rgba(82, 195, 184, 0.15)', color: '#52c3b8', border: 'rgba(82, 195, 184, 0.4)' }
 };
 
+const ACCEL_DESCRIPTIONS: Record<string, string> = {
+  'final_corner': 'Final leg starts on the final corner, and there are no more corners.',
+  'delayed_final_corner': 'The final leg starts in the 2nd half of the final corner.',
+  'before_final_corner': 'The final leg starts on a corner that is NOT the final corner.',
+  'straight': 'Final leg starts on a straight.',
+  'uphill': 'Final leg starts on an uphill slope.',
+  'downhill': 'Final leg starts on a downhill slope.'
+};
+
 const ALL_ACCEL_TYPES = Object.keys(ACCEL_TYPES);
 
 /** Determine the acceleration types for a course based on the 50m window from the final leg start */
@@ -152,6 +161,26 @@ const RARITY_CLASS: Record<number, string> = {
   4: 'umasRarity-unique',
   5: 'umasRarity-unique',
   6: 'umasRarity-pink'
+};
+
+const getSkillTypeClass = (iconId: string | undefined, rarity: number): string => {
+  if (!iconId) return '';
+  const id = parseInt(iconId);
+
+  // InheritedUnique: Rarity 1 but using a unique icon (3xxxx/4xxxx)
+  if (rarity === 1 && id >= 30000) return 'umasType-inherited';
+
+  // Main Unique / Evolution: Rarity 3+
+  if (id >= 30000) return 'umasType-unique';
+
+  // Middle digits (type code)
+  const typeCode = Math.floor(id / 10) % 100;
+
+  if (typeCode >= 1 && typeCode <= 19) return 'umasType-speed';
+  if (typeCode >= 20 && typeCode <= 29) return 'umasType-recovery';
+  if (typeCode >= 40 && typeCode <= 49) return 'umasType-debuff';
+
+  return '';
 };
 
 // Senkou Phase 1 (Middle Leg) coefficient
@@ -745,19 +774,21 @@ const RARITY_LABELS: Record<number, string> = {
   6: 'Evolution'
 };
 
-function SkillPill({ id, name, rarity, onClick, selected }: {
+function SkillPill({ id, name, rarity, onClick, selected, suffix }: {
   id: string;
   name: string;
   rarity: number;
   onClick: (id: string) => void;
   selected: boolean;
+  suffix?: any;
 }) {
   const iconId = (skillMeta as any)[id]?.iconId;
   const rarityClass = RARITY_CLASS[rarity] || 'umasRarity-white';
+  const typeClass = getSkillTypeClass(iconId, rarity);
 
   return (
     <div
-      className={`umasSkillPill ${rarityClass} ${selected ? 'selected' : ''}`}
+      className={`umasSkillPill ${rarityClass} ${typeClass} ${selected ? 'selected' : ''}`}
       onClick={() => onClick(id)}
       title={name}
     >
@@ -768,7 +799,10 @@ function SkillPill({ id, name, rarity, onClick, selected }: {
           loading="lazy"
         />
       )}
-      <span className="umasSkillPillName">{name}</span>
+      <div className="umasSkillPillContent">
+        <span className="umasSkillPillName">{name}</span>
+        {suffix}
+      </div>
     </div>
   );
 }
@@ -831,6 +865,7 @@ function App() {
   const [distanceFilter, setDistanceFilter] = useState<string[]>(['1', '2', '3', '4']);
   const [accelTypeFilter, setAccelTypeFilter] = useState<string[]>(ALL_ACCEL_TYPES);
   const [raceTrackFilter, setRaceTrackFilter] = useState<string>('all');
+  const [isSkillPickerExpanded, setIsSkillPickerExpanded] = useState(false);
   const [sortKey, setSortKey] = useState<'id' | 'distance' | 'surface'>('id');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [focusedId, setFocusedId] = useState<string | null>(null);
@@ -931,7 +966,7 @@ function App() {
 
   return (
     <div className="container dark">
-      <h1>Uma Course Visualiser</h1>
+      <h1>5v5 Draft Helper</h1>
 
       <div className="controls">
         <div className="controls-row">
@@ -998,6 +1033,7 @@ function App() {
               <button
                 key={key}
                 className={`toggle-btn accel-toggle ${accelTypeFilter.includes(key) ? 'active' : ''}`}
+                title={ACCEL_DESCRIPTIONS[key]}
                 style={accelTypeFilter.includes(key) ? {
                   background: ACCEL_TYPE_COLORS[key].bg,
                   color: ACCEL_TYPE_COLORS[key].color,
@@ -1033,27 +1069,50 @@ function App() {
       </div>
 
       {/* Skill Selector */}
-      <div className="skill-selector">
-        <div className="skill-selector-header">
-          <span className="skill-selector-title">Skill Duration Preview</span>
-          <span className="skill-selector-strategy">Strategy: Senkou (Pace Chaser)</span>
+      <div className={`skill-selector ${isSkillPickerExpanded ? 'expanded' : 'collapsed'}`}>
+        <div className="skill-selector-header" onClick={() => setIsSkillPickerExpanded(!isSkillPickerExpanded)}>
+          <div className="skill-selector-title-wrap">
+            <span className="skill-selector-chevron">{isSkillPickerExpanded ? '▼' : '▶'}</span>
+            <span className="skill-selector-title">Preview Skill</span>
+            {!isSkillPickerExpanded && selectedSkills.length > 0 && (
+              <span className="skill-selector-count">({selectedSkills.length} selected)</span>
+            )}
+          </div>
         </div>
 
-        <SkillPicker
-          skills={skillList}
-          selectedIds={selectedSkillIds}
-          onToggle={handleSkillToggle}
-        />
+        {isSkillPickerExpanded && (
+          <Fragment>
+            <SkillPicker
+              skills={skillList}
+              selectedIds={selectedSkillIds}
+              onToggle={handleSkillToggle}
+            />
 
-        {selectedSkills.length > 0 && (
-          <div className="skill-info-container">
-            {selectedSkills.map((skill, idx) => (
-              <div key={skill.id} className="skill-info" style={{ borderLeft: `4px solid ${SKILL_COLORS[idx % SKILL_COLORS.length]}` }}>
-                <span className="skill-info-name" style={{ color: SKILL_COLORS[idx % SKILL_COLORS.length] }}>{skill.name}</span>
-                <span className="skill-info-detail">{(skill.baseDuration / 10000).toFixed(1)}s</span>
+            {selectedSkills.length > 0 && (
+              <div className="skill-info-container">
+                {selectedSkills.map((skill, idx) => {
+                  const trackColor = SKILL_COLORS[idx % SKILL_COLORS.length];
+
+                  return (
+                    <SkillPill
+                      key={skill.id}
+                      id={skill.id}
+                      name={skill.name}
+                      rarity={skill.rarity}
+                      selected={true}
+                      onClick={handleSkillToggle}
+                      suffix={
+                        <div className="skill-pill-suffix">
+                          <span className="skill-pill-duration">{(skill.baseDuration / 10000).toFixed(1)}s</span>
+                          <div className="skill-track-indicator" style={{ background: trackColor }} />
+                        </div>
+                      }
+                    />
+                  );
+                })}
               </div>
-            ))}
-          </div>
+            )}
+          </Fragment>
         )}
       </div>
 
@@ -1122,6 +1181,7 @@ function App() {
                       <span
                         key={type}
                         className="accel-badge"
+                        title={ACCEL_DESCRIPTIONS[type]}
                         style={{
                           background: ACCEL_TYPE_COLORS[type].bg,
                           color: ACCEL_TYPE_COLORS[type].color,

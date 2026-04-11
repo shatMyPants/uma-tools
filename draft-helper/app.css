@@ -308,7 +308,40 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.25rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.skill-selector.expanded .skill-selector-header {
+  padding-bottom: 1.25rem;
+}
+
+.skill-selector-header:hover .skill-selector-title {
+  color: var(--accent-color);
+}
+
+.skill-selector-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.skill-selector-chevron {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  width: 1.25rem;
+  transition: transform 0.2s;
+}
+
+.skill-selector.expanded .skill-selector-chevron {
+  color: var(--accent-color);
+}
+
+.skill-selector-count {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+  margin-left: 0.25rem;
 }
 
 .skill-selector-title {
@@ -316,6 +349,7 @@ h1 {
   font-weight: 800;
   color: var(--text-primary);
   letter-spacing: -0.01em;
+  transition: color 0.2s;
 }
 
 .skill-selector-strategy {
@@ -384,7 +418,7 @@ h1 {
 /* Skill Grid - Max 3 rows */
 .umasSkillGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 0.75rem;
   max-height: 142px;
   /* Approx 3 rows of pills (36px + 8px gap) + padding */
@@ -415,6 +449,7 @@ h1 {
   cursor: pointer;
   transition: transform 0.15s, background 0.15s, border-color 0.15s;
   user-select: none;
+  min-width: 280px;
 }
 
 .umasSkillPill:hover {
@@ -427,6 +462,28 @@ h1 {
   background: rgba(88, 166, 255, 0.1);
   border-color: var(--accent-color);
   box-shadow: 0 0 0 1px var(--accent-color);
+}
+
+/* Skill Type Side Colouring */
+.umasType-unique { border-left-color: #bc8cf2 !important; }
+.umasType-speed { border-left-color: #e3b341 !important; }
+.umasType-recovery { border-left-color: #58a6ff !important; }
+.umasType-debuff { border-left-color: #f85149 !important; }
+.umasType-inherited { border-left-color: #ffffff !important; }
+
+/* Rarity Backgrounds */
+.umasRarity-gold {
+  background: rgba(227, 179, 65, 0.12);
+}
+.umasRarity-gold:hover {
+  background: rgba(227, 179, 65, 0.2);
+}
+
+.umasRarity-unique, .umasRarity-pink {
+  background: rgba(188, 140, 242, 0.12);
+}
+.umasRarity-unique:hover, .umasRarity-pink:hover {
+  background: rgba(188, 140, 242, 0.2);
 }
 
 .umasSkillPillIcon {
@@ -581,16 +638,34 @@ h1 {
   margin-top: 1.25rem;
 }
 
-.skill-info {
-  flex: 1;
-  min-width: 200px;
+.umasSkillPillContent {
   display: flex;
-  gap: 0.75rem;
   align-items: center;
-  padding: 0.6rem 1rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.skill-pill-suffix {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.skill-pill-duration {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-family: monospace;
+}
+
+.skill-track-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
 }
 
 .skill-info-name {
@@ -652,6 +727,7 @@ h1 {
 }
 
 .accel-badge {
+  margin-top: 5px;
   display: inline-block;
   padding: 2px 8px;
   border-radius: 12px;
