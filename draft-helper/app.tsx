@@ -1178,7 +1178,7 @@ function App() {
                       </div>
                       {preview.finalLegDist !== null && (
                         <div className="skill-preview-row">
-                          <span className="skill-preview-label">In Final Leg</span>
+                          <span className="skill-preview-label">Acceleration In Final Leg</span>
                           <span className="skill-preview-value accel">{preview.finalLegDist.toFixed(1)}m</span>
                         </div>
                       )}
