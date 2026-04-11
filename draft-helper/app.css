@@ -531,12 +531,13 @@ h1 {
   flex-wrap: wrap;
 }
 
-font-size: 0.85rem;
-font-weight: 800;
-color: var(--text-secondary);
-min-width: 100px;
-text-transform: uppercase;
-letter-spacing: 0.05em;
+.toggle-group-label {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--text-secondary);
+  min-width: 100px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .toggle-btn.turf.active {
