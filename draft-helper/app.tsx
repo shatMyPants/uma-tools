@@ -1,5 +1,5 @@
 import { render, h, Fragment } from 'preact';
-import { useState, useMemo, useEffect } from 'preact/hooks';
+import { useState, useMemo, useEffect, useRef } from 'preact/hooks';
 import courseData from './course_data.json';
 import trackNames from './tracknames.json';
 import staminaResults from './stamina_results.json';
@@ -874,6 +874,22 @@ function MultiSelectDropdown({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
@@ -890,7 +906,7 @@ function MultiSelectDropdown({
   }, [selectedValues, options]);
 
   return (
-    <div className={`multi-dropdown ${isOpen ? 'open' : ''}`}>
+    <div className={`multi-dropdown ${isOpen ? 'open' : ''}`} ref={dropdownRef}>
       <div className="multi-dropdown-trigger" onClick={() => setIsOpen(!isOpen)}>
         <span className="multi-dropdown-label">{label}:</span>
         <span className="multi-dropdown-summary">{summary}</span>
@@ -930,7 +946,6 @@ function MultiSelectDropdown({
           </div>
         </div>
       )}
-      {isOpen && <div className="multi-dropdown-overlay" onClick={() => setIsOpen(false)} />}
     </div>
   );
 }
@@ -993,7 +1008,7 @@ function App() {
       return {
         id,
         ...course,
-        trackName: (trackNames as any)[course.raceTrackId]?.[1] || `Track ${course.raceTrackId}`,
+        trackName: `${(trackNames as any)[course.raceTrackId]?.[1] || `Track ${course.raceTrackId}`} ${course.surface === 1 ? 'Turf' : 'Dirt'} ${course.distance}m`,
         accelTypes: getAccelerationTypes(course),
         stamina: {
           frontPace: frontPace === -1 ? 600 : (frontPace || 600),
@@ -1007,7 +1022,8 @@ function App() {
   const uniqueRaceTracks = useMemo(() => {
     const tracks = new Map<number, string>();
     mergedCourses.forEach(c => {
-      tracks.set(c.raceTrackId, c.trackName);
+      const baseName = (trackNames as any)[c.raceTrackId]?.[1] || `Track ${c.raceTrackId}`;
+      tracks.set(c.raceTrackId, baseName);
     });
     return Array.from(tracks.entries()).sort((a, b) => a[1].localeCompare(b[1]));
   }, [mergedCourses]);
@@ -1287,7 +1303,7 @@ function App() {
               <div className="course-header">
                 <div className="course-title-wrap">
                   <div className="course-name">
-                    {course.trackName} {course.distance}m
+                    {course.trackName}
                   </div>
                   <div className="accel-badges">
                     {(course as any).course >= 2 && (course as any).course <= 4 && (
@@ -1387,6 +1403,14 @@ function App() {
           No courses found matching your filters.
         </div>
       )}
+
+      <button
+        className="back-to-top"
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        title="Back to Top"
+      >
+        ▲
+      </button>
     </div>
   );
 }
