@@ -859,12 +859,90 @@ function SkillPicker({
   );
 }
 
+function MultiSelectDropdown({
+  label,
+  options,
+  selectedValues,
+  onToggle,
+  onClear
+}: {
+  label: string;
+  options: [number, string][];
+  selectedValues: string[];
+  onToggle: (id: string) => void;
+  onClear: () => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState('');
+
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase();
+    return options.filter(([id, name]) => name.toLowerCase().includes(q));
+  }, [options, search]);
+
+  const summary = useMemo(() => {
+    if (selectedValues.length === 0) return 'All';
+    if (selectedValues.length === 1) {
+      const opt = options.find(([id]) => id.toString() === selectedValues[0]);
+      return opt ? opt[1] : '1 selected';
+    }
+    return `${selectedValues.length} selected`;
+  }, [selectedValues, options]);
+
+  return (
+    <div className={`multi-dropdown ${isOpen ? 'open' : ''}`}>
+      <div className="multi-dropdown-trigger" onClick={() => setIsOpen(!isOpen)}>
+        <span className="multi-dropdown-label">{label}:</span>
+        <span className="multi-dropdown-summary">{summary}</span>
+        <span className="multi-dropdown-chevron">▼</span>
+      </div>
+      {isOpen && (
+        <div className="multi-dropdown-panel">
+          <div className="multi-dropdown-search">
+            <input
+              type="text"
+              placeholder="Filter tracks..."
+              value={search}
+              onInput={(e) => setSearch((e.target as HTMLInputElement).value)}
+              autoFocus
+            />
+          </div>
+          <div className="multi-dropdown-actions">
+            <button onClick={onClear}>Clear All</button>
+            <button onClick={() => setIsOpen(false)}>Close</button>
+          </div>
+          <div className="multi-dropdown-list">
+            {filtered.map(([id, name]) => {
+              const sId = id.toString();
+              const isSelected = selectedValues.includes(sId);
+              return (
+                <label key={sId} className={`multi-dropdown-item ${isSelected ? 'selected' : ''}`}>
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => onToggle(sId)}
+                  />
+                  <span>{name}</span>
+                </label>
+              );
+            })}
+            {filtered.length === 0 && <div className="multi-dropdown-empty">No tracks found</div>}
+          </div>
+        </div>
+      )}
+      {isOpen && <div className="multi-dropdown-overlay" onClick={() => setIsOpen(false)} />}
+    </div>
+  );
+}
+
 function App() {
   const [search, setSearch] = useState('');
   const [surfaceFilter, setSurfaceFilter] = useState<string[]>(['1', '2']);
   const [distanceFilter, setDistanceFilter] = useState<string[]>(['1', '2', '3', '4']);
   const [accelTypeFilter, setAccelTypeFilter] = useState<string[]>(ALL_ACCEL_TYPES);
-  const [raceTrackFilter, setRaceTrackFilter] = useState<string>('all');
+  const [raceTrackFilter, setRaceTrackFilter] = useState<string[]>([]);
+  const [showSkillsOnMap, setShowSkillsOnMap] = useState<boolean>(true);
+  const [showSkillPreviews, setShowSkillPreviews] = useState<boolean>(true);
   const [isSkillPickerExpanded, setIsSkillPickerExpanded] = useState(false);
   const [sortKey, setSortKey] = useState<'id' | 'distance' | 'surface'>('id');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -936,13 +1014,20 @@ function App() {
 
   const filteredCourses = useMemo(() => {
     return mergedCourses.filter(course => {
-      const q = search.toLowerCase();
-      const matchesSearch = course.id.includes(search) ||
-        course.trackName.toLowerCase().includes(q) ||
-        course.distance.toString().includes(q);
+      // Advanced Search Logic: Comma/Semicolon = OR, Space = AND
+      const searchParts = search.toLowerCase().split(/[;,]/).map(s => s.trim()).filter(Boolean);
+      const matchesSearch = searchParts.length === 0 || searchParts.some(part => {
+        const tokens = part.split(/\s+/).filter(Boolean);
+        return tokens.every(token =>
+          course.id.toLowerCase().includes(token) ||
+          course.trackName.toLowerCase().includes(token) ||
+          course.distance.toString().includes(token)
+        );
+      });
+
       const matchesSurface = surfaceFilter.includes(course.surface.toString());
       const matchesDistance = distanceFilter.includes(course.distanceType.toString());
-      const matchesRaceTrack = raceTrackFilter === 'all' || course.raceTrackId.toString() === raceTrackFilter;
+      const matchesRaceTrack = raceTrackFilter.length === 0 || raceTrackFilter.includes(course.raceTrackId.toString());
       const matchesAccelType = accelTypeFilter.length === ALL_ACCEL_TYPES.length || course.accelTypes.some(t => accelTypeFilter.includes(t));
 
       return matchesSearch && matchesSurface && matchesDistance && matchesRaceTrack && matchesAccelType;
@@ -970,81 +1055,109 @@ function App() {
 
       <div className="controls">
         <div className="controls-row">
-          <input
-            type="text"
-            placeholder="Search Track / Length / ID..."
-            className="search-input"
-            value={search}
-            onInput={(e) => setSearch((e.target as HTMLInputElement).value)}
+          <div className="search-wrap">
+            <input
+              type="text"
+              placeholder="Search Track / Length / ID..."
+              className="search-input"
+              value={search}
+              onInput={(e) => setSearch((e.target as HTMLInputElement).value)}
+            />
+            <div className="search-hint">Use <b>spaces</b> for AND, <b>commas/semicolons</b> for OR (e.g. "tokyo 2000; kyoto")</div>
+          </div>
+        </div>
+
+        <div className="controls-row">
+          <MultiSelectDropdown
+            label="Racecourse"
+            options={uniqueRaceTracks}
+            selectedValues={raceTrackFilter}
+            onToggle={(id) => handleFilterClick(id, raceTrackFilter, uniqueRaceTracks.map(t => t[0].toString()), setRaceTrackFilter)}
+            onClear={() => setRaceTrackFilter([])}
           />
-
-          <select
-            className="filter-select"
-            value={raceTrackFilter}
-            onChange={(e) => setRaceTrackFilter((e.target as HTMLSelectElement).value)}
-          >
-            <option value="all">All Locations</option>
-            {uniqueRaceTracks.map(([id, name]) => (
-              <option key={id} value={id}>{name}</option>
-            ))}
-          </select>
         </div>
 
         <div className="controls-row">
-          <div className="toggle-group-label">Distance:</div>
-          <div className="toggle-group">
-            {Object.entries(DISTANCE_TYPES).map(([id, label]) => (
-              <button
-                key={id}
-                className={`toggle-btn ${distanceFilter.includes(id) ? 'active' : ''}`}
-                onClick={() => handleFilterClick(id, distanceFilter, ['1', '2', '3', '4'], setDistanceFilter)}
-                onDblClick={() => handleFilterDblClick(['1', '2', '3', '4'], setDistanceFilter)}
-              >
-                {label}
-              </button>
-            ))}
+          <div className="toggle-group-row">
+            <div className="toggle-group-item">
+              <div className="toggle-group-label">Distance:</div>
+              <div className="toggle-group">
+                {Object.entries(DISTANCE_TYPES).map(([id, label]) => (
+                  <button
+                    key={id}
+                    className={`toggle-btn ${distanceFilter.includes(id) ? 'active' : ''}`}
+                    onClick={() => handleFilterClick(id, distanceFilter, ['1', '2', '3', '4'], setDistanceFilter)}
+                    onDblClick={() => handleFilterDblClick(['1', '2', '3', '4'], setDistanceFilter)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="toggle-group-item">
+              <div className="toggle-group-label">Ground Type:</div>
+              <div className="toggle-group">
+                <button
+                  className={`toggle-btn turf ${surfaceFilter.includes('1') ? 'active' : ''}`}
+                  onClick={() => handleFilterClick('1', surfaceFilter, ['1', '2'], setSurfaceFilter)}
+                  onDblClick={() => handleFilterDblClick(['1', '2'], setSurfaceFilter)}
+                >
+                  Turf
+                </button>
+                <button
+                  className={`toggle-btn dirt ${surfaceFilter.includes('2') ? 'active' : ''}`}
+                  onClick={() => handleFilterClick('2', surfaceFilter, ['1', '2'], setSurfaceFilter)}
+                  onDblClick={() => handleFilterDblClick(['1', '2'], setSurfaceFilter)}
+                >
+                  Dirt
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
         <div className="controls-row">
-          <div className="toggle-group-label">Track Type:</div>
-          <div className="toggle-group">
-            <button
-              className={`toggle-btn turf ${surfaceFilter.includes('1') ? 'active' : ''}`}
-              onClick={() => handleFilterClick('1', surfaceFilter, ['1', '2'], setSurfaceFilter)}
-              onDblClick={() => handleFilterDblClick(['1', '2'], setSurfaceFilter)}
-            >
-              Turf
-            </button>
-            <button
-              className={`toggle-btn dirt ${surfaceFilter.includes('2') ? 'active' : ''}`}
-              onClick={() => handleFilterClick('2', surfaceFilter, ['1', '2'], setSurfaceFilter)}
-              onDblClick={() => handleFilterDblClick(['1', '2'], setSurfaceFilter)}
-            >
-              Dirt
-            </button>
-          </div>
-        </div>
+          <div className="toggle-group-row">
+            <div className="toggle-group-item">
+              <div className="toggle-group-label">Accel Type:</div>
+              <div className="toggle-group accel-toggle-group">
+                {Object.entries(ACCEL_TYPES).map(([key, label]) => (
+                  <button
+                    key={key}
+                    className={`toggle-btn accel-toggle ${accelTypeFilter.includes(key) ? 'active' : ''}`}
+                    title={ACCEL_DESCRIPTIONS[key]}
+                    style={accelTypeFilter.includes(key) ? {
+                      background: ACCEL_TYPE_COLORS[key].bg,
+                      color: ACCEL_TYPE_COLORS[key].color,
+                      borderColor: ACCEL_TYPE_COLORS[key].border
+                    } : {}}
+                    onClick={() => handleFilterClick(key, accelTypeFilter, ALL_ACCEL_TYPES, setAccelTypeFilter)}
+                    onDblClick={() => handleFilterDblClick(ALL_ACCEL_TYPES, setAccelTypeFilter)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-        <div className="controls-row">
-          <div className="toggle-group-label">Accel Type:</div>
-          <div className="toggle-group accel-toggle-group">
-            {Object.entries(ACCEL_TYPES).map(([key, label]) => (
-              <button
-                key={key}
-                className={`toggle-btn accel-toggle ${accelTypeFilter.includes(key) ? 'active' : ''}`}
-                title={ACCEL_DESCRIPTIONS[key]}
-                style={accelTypeFilter.includes(key) ? {
-                  background: ACCEL_TYPE_COLORS[key].bg,
-                  color: ACCEL_TYPE_COLORS[key].color,
-                  borderColor: ACCEL_TYPE_COLORS[key].border
-                } : {}}
-                onClick={() => handleFilterClick(key, accelTypeFilter, ALL_ACCEL_TYPES, setAccelTypeFilter)}
-                onDblClick={() => handleFilterDblClick(ALL_ACCEL_TYPES, setAccelTypeFilter)}
-              >
-                {label}
-              </button>
-            ))}
+            <div className="toggle-group-item">
+              <div className="toggle-group-label">Map View:</div>
+              <div className="toggle-group">
+                <button
+                  className={`toggle-btn ${showSkillsOnMap ? 'active' : ''}`}
+                  onClick={() => setShowSkillsOnMap(!showSkillsOnMap)}
+                >
+                  {showSkillsOnMap ? '✓ Skills' : 'Show Skills'}
+                </button>
+                <button
+                  className={`toggle-btn ${showSkillPreviews ? 'active' : ''}`}
+                  onClick={() => setShowSkillPreviews(!showSkillPreviews)}
+                >
+                  {showSkillPreviews ? '✓ Details' : 'Show Details'}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1177,6 +1290,11 @@ function App() {
                     {course.trackName} {course.distance}m
                   </div>
                   <div className="accel-badges">
+                    {(course as any).course >= 2 && (course as any).course <= 4 && (
+                      <span className="badge badge-lane">
+                        {['', '', 'Inner', 'Outer', 'Outer→Inner'][(course as any).course]}
+                      </span>
+                    )}
                     {course.accelTypes.map(type => (
                       <span
                         key={type}
@@ -1201,7 +1319,7 @@ function App() {
               <div className="course-track">
                 <RaceTrack
                   courseid={parseInt(course.id)}
-                  regions={regions}
+                  regions={showSkillsOnMap ? regions : []}
                   width={isFocused ? 1200 : 800}
                   height={isFocused ? 240 : 120}
                   xOffset={0}
@@ -1225,25 +1343,38 @@ function App() {
               </div>
 
               {skillPreviews.length > 0 && (
-                <div className="skill-previews-container">
-                  {skillPreviews.map(preview => (
-                    <div key={preview.id} className="skill-preview" style={{ borderTop: `1px solid ${preview.color}44` }}>
-                      <div className="skill-preview-row">
-                        <span className="skill-preview-label" style={{ color: preview.color }}>{preview.name}</span>
-                        <span className="skill-preview-value">{preview.duration.toFixed(2)}s / {preview.distance.toFixed(1)}m</span>
-                      </div>
-                      <div className="skill-preview-row">
-                        <span className="skill-preview-label">Coverage</span>
-                        <span className="skill-preview-value">{preview.coverage}%</span>
-                      </div>
-                      {preview.finalLegDist !== null && (
-                        <div className="skill-preview-row">
-                          <span className="skill-preview-label">Acceleration In Final Leg</span>
-                          <span className="skill-preview-value accel">{preview.finalLegDist.toFixed(1)}m</span>
-                        </div>
-                      )}
+                <div 
+                  className={`skill-previews-container ${!showSkillPreviews ? 'collapsed' : ''}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowSkillPreviews(!showSkillPreviews);
+                  }}
+                >
+                  {!showSkillPreviews ? (
+                    <div className="skill-previews-collapsed">
+                      <span>Click to show {skillPreviews.length} skills</span>
+                      <span className="chevron">▶</span>
                     </div>
-                  ))}
+                  ) : (
+                    skillPreviews.map(preview => (
+                      <div key={preview.id} className="skill-preview" style={{ borderTop: `1px solid ${preview.color}44` }}>
+                        <div className="skill-preview-row">
+                          <span className="skill-preview-label" style={{ color: preview.color }}>{preview.name}</span>
+                          <span className="skill-preview-value">{preview.duration.toFixed(2)}s / {preview.distance.toFixed(1)}m</span>
+                        </div>
+                        <div className="skill-preview-row">
+                          <span className="skill-preview-label">Coverage</span>
+                          <span className="skill-preview-value">{preview.coverage}%</span>
+                        </div>
+                        {preview.finalLegDist !== null && (
+                          <div className="skill-preview-row">
+                            <span className="skill-preview-label">Acceleration In Final Leg</span>
+                            <span className="skill-preview-value accel">{preview.finalLegDist.toFixed(1)}m</span>
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  )}
                 </div>
               )}
             </div>

@@ -219,6 +219,16 @@ h1 {
   border: 1px solid rgba(188, 140, 242, 0.3);
 }
 
+.badge-lane {
+  background: #21262d;
+  color: #f0f6fc;
+  border: 1.5px solid #d0d7de;
+  text-transform: capitalize;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  padding: 0.15rem 0.6rem;
+}
+
 .stamina-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -465,24 +475,42 @@ h1 {
 }
 
 /* Skill Type Side Colouring */
-.umasType-unique { border-left-color: #bc8cf2 !important; }
-.umasType-speed { border-left-color: #e3b341 !important; }
-.umasType-recovery { border-left-color: #58a6ff !important; }
-.umasType-debuff { border-left-color: #f85149 !important; }
-.umasType-inherited { border-left-color: #ffffff !important; }
+.umasType-unique {
+  border-left-color: #bc8cf2 !important;
+}
+
+.umasType-speed {
+  border-left-color: #e3b341 !important;
+}
+
+.umasType-recovery {
+  border-left-color: #58a6ff !important;
+}
+
+.umasType-debuff {
+  border-left-color: #f85149 !important;
+}
+
+.umasType-inherited {
+  border-left-color: #ffffff !important;
+}
 
 /* Rarity Backgrounds */
 .umasRarity-gold {
   background: rgba(227, 179, 65, 0.12);
 }
+
 .umasRarity-gold:hover {
   background: rgba(227, 179, 65, 0.2);
 }
 
-.umasRarity-unique, .umasRarity-pink {
+.umasRarity-unique,
+.umasRarity-pink {
   background: rgba(188, 140, 242, 0.12);
 }
-.umasRarity-unique:hover, .umasRarity-pink:hover {
+
+.umasRarity-unique:hover,
+.umasRarity-pink:hover {
   background: rgba(188, 140, 242, 0.2);
 }
 
@@ -522,8 +550,204 @@ h1 {
 }
 
 .search-input {
-  flex: 2;
-  min-width: 200px;
+  width: 100%;
+}
+
+.search-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.search-hint {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  padding: 0 0.5rem;
+}
+
+.search-hint b {
+  color: var(--accent-color);
+}
+
+.track-toggle-group {
+  display: none;
+}
+
+/* Multi-select Dropdown */
+.multi-dropdown {
+  position: relative;
+  width: 100%;
+  z-index: 1000;
+}
+
+.multi-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.multi-dropdown-trigger:hover {
+  border-color: var(--accent-color);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.multi-dropdown.open .multi-dropdown-trigger {
+  border-color: var(--accent-color);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.multi-dropdown-label {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.multi-dropdown-summary {
+  flex: 1;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.multi-dropdown-chevron {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  transition: transform 0.2s;
+}
+
+.multi-dropdown.open .multi-dropdown-chevron {
+  transform: rotate(180deg);
+  color: var(--accent-color);
+}
+
+.multi-dropdown-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #161b22;
+  border: 1px solid var(--accent-color);
+  border-top: none;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 1001;
+}
+
+.multi-dropdown-search {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.multi-dropdown-search input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.multi-dropdown-search input:focus {
+  border-color: var(--accent-color);
+}
+
+.multi-dropdown-actions {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.multi-dropdown-actions button {
+  background: none;
+  border: none;
+  color: var(--accent-color);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.multi-dropdown-actions button:hover {
+  background: rgba(88, 166, 255, 0.1);
+}
+
+.multi-dropdown-list {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 0.5rem 0;
+}
+
+.multi-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.multi-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.multi-dropdown-item.selected {
+  background: rgba(88, 166, 255, 0.05);
+}
+
+.multi-dropdown-item input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent-color);
+}
+
+.multi-dropdown-item span {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.multi-dropdown-empty {
+  padding: 2rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.multi-dropdown-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+}
+
+.track-toggle-group .toggle-btn {
+  font-size: 0.75rem;
+  padding: 4px 10px;
 }
 
 .filter-select {
@@ -609,6 +833,21 @@ h1 {
   box-shadow: 0 2px 10px rgba(210, 153, 34, 0.3);
 }
 
+.toggle-group-row {
+  display: flex;
+  gap: 2rem;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.toggle-group-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  min-width: 300px;
+}
+
 .sort-row {
   border-top: 1px solid var(--glass-border);
   padding-top: 1.25rem;
@@ -683,11 +922,45 @@ h1 {
 .skill-previews-container {
   display: flex;
   flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+.skill-previews-container.collapsed {
+  background: rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  border-top: 1px solid var(--border-color);
+}
+
+.skill-previews-container.collapsed:hover {
+  background: rgba(88, 166, 255, 0.1);
+}
+
+.skill-previews-collapsed {
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.skill-previews-collapsed .chevron {
+  font-size: 0.6rem;
+  transition: transform 0.2s;
 }
 
 .skill-preview {
   padding: 1.25rem 1.5rem;
   background: rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.skill-preview:hover {
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .skill-preview-row {
