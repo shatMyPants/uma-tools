@@ -26,6 +26,7 @@ import { DraftVisualiser } from './components/DraftVisualiser';
 
 function App() {
   const [isDrafterOpen, setIsDrafterOpen] = useState(false);
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [surfaceFilter, setSurfaceFilter] = useState<string[]>(['1', '2']);
   const [distanceFilter, setDistanceFilter] = useState<string[]>(['1', '2', '3', '4']);
@@ -159,7 +160,16 @@ function App() {
 
   return (
     <div className="container dark">
-      <h1>5v5 Draft Helper</h1>
+      <header className="app-header">
+        <h1>5v5 Draft Helper</h1>
+        <button 
+          className="info-btn" 
+          onClick={() => setIsInfoOpen(true)}
+          title="App Features & Help"
+        >
+          i
+        </button>
+      </header>
 
       {/* Skill Selector */}
       <div className={`skill-selector ${isSkillPickerExpanded ? 'expanded' : 'collapsed'}`}>
@@ -424,6 +434,78 @@ function App() {
       >
         ▲
       </button>
+
+      {/* Info Modal */}
+      {isInfoOpen && (
+        <div className="info-modal-overlay" onClick={() => setIsInfoOpen(false)}>
+          <div className="info-modal-container" onClick={e => e.stopPropagation()}>
+            <button className="info-modal-close" onClick={() => setIsInfoOpen(false)}>✕</button>
+            <div className="info-modal-content">
+              <h2>App Features & Usage</h2>
+              
+              <div className="feature-grid">
+                <div className="feature-item">
+                  <div className="feature-icon">🏟️</div>
+                  <div className="feature-details">
+                    <h3>Track Database</h3>
+                    <p>Explore all 58 racetracks with detailed acceleration analysis and stats.</p>
+                    <div className="feature-note">
+                      Stamina levels are calculated based on <b>Pace Chaser</b> (Senkou) and <b>End Closer</b> (Ooikomi) strategies 
+                      at 1200 Spd, 900 Pow, 500 Gut, 900 Wit (Dist Apt: S), targeting 90% Spurt and 80% Survival on Heavy tracks.
+                    </div>
+                  </div>
+                </div>
+
+                <div className="feature-item">
+                  <div className="feature-icon">🔍</div>
+                  <div className="feature-details">
+                    <h3>Smart Search</h3>
+                    <p>Powerful filtering: Use <b>spaces</b> for AND, and <b>commas or semicolons</b> for OR logic.</p>
+                    <code>"tokyo 2000; kyoto"</code>
+                  </div>
+                </div>
+
+                <div className="feature-item">
+                  <div className="feature-icon">⚡</div>
+                  <div className="feature-details">
+                    <h3>Skill Visualisation</h3>
+                    <p>Select skills from the picker to see their exact activation regions overlaid on any racetrack map.</p>
+                  </div>
+                </div>
+
+                <div className="feature-item">
+                  <div className="feature-icon">📋</div>
+                  <div className="feature-details">
+                    <h3>5v5 Draft Visualiser</h3>
+                    <p>Interactive tool to plan team compositions, track assignments, and tiebreaker strategies.</p>
+                    <p className="feature-hint">Access via the <b>Draft 5v5</b> button at the bottom of the screen.</p>
+                  </div>
+                </div>
+
+                <div className="feature-item">
+                  <div className="feature-icon">🎯</div>
+                  <div className="feature-details">
+                    <h3>Course Focus</h3>
+                    <p>Get a full-screen, detailed breakdown of any track by <b>clicking on its card</b> in the grid.</p>
+                  </div>
+                </div>
+
+                <div className="feature-item">
+                  <div className="feature-icon">🛠️</div>
+                  <div className="feature-details">
+                    <h3>Advanced Filtering</h3>
+                    <p>Precision filters for Surface, Distance Type, Acceleration patterns, and more.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="info-modal-footer">
+                <button className="footer-close-btn" onClick={() => setIsInfoOpen(false)}>Got it!</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
