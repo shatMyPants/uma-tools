@@ -22,8 +22,10 @@ import { SkillPill } from './components/SkillPill';
 import { SkillPicker } from './components/SkillPicker';
 import { MultiSelectDropdown } from './components/MultiSelectDropdown';
 import { CourseCard } from './components/CourseCard';
+import { DraftVisualiser } from './components/DraftVisualiser';
 
 function App() {
+  const [isDrafterOpen, setIsDrafterOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [surfaceFilter, setSurfaceFilter] = useState<string[]>(['1', '2']);
   const [distanceFilter, setDistanceFilter] = useState<string[]>(['1', '2', '3', '4']);
@@ -36,6 +38,15 @@ function App() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [focusedId, setFocusedId] = useState<string | null>(null);
   const [selectedSkillIds, setSelectedSkillIds] = useState<string[]>([]);
+  const [draft, setDraft] = useState<{
+    tiebreak: string | null;
+    home: (string | null)[];
+    opponent: (string | null)[];
+  }>({
+    tiebreak: null,
+    home: [null, null, null, null],
+    opponent: [null, null, null, null]
+  });
 
   useEffect(() => {
     document.body.classList.add('dark');
@@ -78,15 +89,20 @@ function App() {
       const frontPace = stamina ? (stamina as any).Senkou : 600;
       const lateEnd = stamina ? (stamina as any).Oikomi : 600;
 
+      const surfaceStr = course.surface === 1 ? 'Turf' : 'Dirt';
+      const distanceTypeStr = DISTANCE_TYPES[course.distanceType as keyof typeof DISTANCE_TYPES];
+      const trackName = `${(trackNames as any)[course.raceTrackId]?.[1] || `Track ${course.raceTrackId}`} ${surfaceStr} ${course.distance}m`;
+
       return {
         id,
         ...course,
-        trackName: `${(trackNames as any)[course.raceTrackId]?.[1] || `Track ${course.raceTrackId}`} ${course.surface === 1 ? 'Turf' : 'Dirt'} ${course.distance}m`,
+        trackName,
         accelTypes: getAccelerationTypes(course),
         // Pre-compute string keys for fast filter matching
         surfaceStr: course.surface.toString(),
         distanceTypeStr: course.distanceType.toString(),
         raceTrackIdStr: course.raceTrackId.toString(),
+        searchString: `${id} ${trackName} ${course.distance} ${surfaceStr} ${distanceTypeStr}`.toLowerCase(),
         stamina: {
           frontPace: frontPace === -1 ? 600 : (frontPace || 600),
           lateEnd: lateEnd === -1 ? 600 : (lateEnd || 600),
@@ -114,11 +130,7 @@ function App() {
       const searchParts = search.toLowerCase().split(/[;,]/).map(s => s.trim()).filter(Boolean);
       const matchesSearch = searchParts.length === 0 || searchParts.some(part => {
         const tokens = part.split(/\s+/).filter(Boolean);
-        return tokens.every(token =>
-          course.id.toLowerCase().includes(token) ||
-          course.trackName.toLowerCase().includes(token) ||
-          course.distance.toString().includes(token)
-        );
+        return tokens.every(token => course.searchString.includes(token));
       });
 
       const matchesSurface = surfaceFilter.includes(course.surfaceStr);
@@ -148,134 +160,6 @@ function App() {
   return (
     <div className="container dark">
       <h1>5v5 Draft Helper</h1>
-
-      <div className="controls">
-        <div className="controls-row">
-          <div className="search-wrap">
-            <input
-              type="text"
-              placeholder="Search Track / Length / ID..."
-              className="search-input"
-              value={search}
-              onInput={(e) => setSearch((e.target as HTMLInputElement).value)}
-            />
-            <div className="search-hint">Use <b>spaces</b> for AND, <b>commas/semicolons</b> for OR (e.g. "tokyo 2000; kyoto")</div>
-          </div>
-        </div>
-
-        <div className="controls-row">
-          <MultiSelectDropdown
-            label="Racecourse"
-            options={uniqueRaceTracks}
-            selectedValues={raceTrackFilter}
-            onToggle={(id) => handleFilterClick(id, raceTrackFilter, uniqueRaceTracks.map(t => t[0].toString()), setRaceTrackFilter)}
-            onClear={() => setRaceTrackFilter([])}
-          />
-        </div>
-
-        <div className="controls-row">
-          <div className="toggle-group-row">
-            <div className="toggle-group-item">
-              <div className="toggle-group-label">Distance:</div>
-              <div className="toggle-group">
-                {Object.entries(DISTANCE_TYPES).map(([id, label]) => (
-                  <button
-                    key={id}
-                    className={`toggle-btn ${distanceFilter.includes(id) ? 'active' : ''}`}
-                    onClick={() => handleFilterClick(id, distanceFilter, ['1', '2', '3', '4'], setDistanceFilter)}
-                    onDblClick={() => handleFilterDblClick(['1', '2', '3', '4'], setDistanceFilter)}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="toggle-group-item">
-              <div className="toggle-group-label">Ground Type:</div>
-              <div className="toggle-group">
-                <button
-                  className={`toggle-btn turf ${surfaceFilter.includes('1') ? 'active' : ''}`}
-                  onClick={() => handleFilterClick('1', surfaceFilter, ['1', '2'], setSurfaceFilter)}
-                  onDblClick={() => handleFilterDblClick(['1', '2'], setSurfaceFilter)}
-                >
-                  Turf
-                </button>
-                <button
-                  className={`toggle-btn dirt ${surfaceFilter.includes('2') ? 'active' : ''}`}
-                  onClick={() => handleFilterClick('2', surfaceFilter, ['1', '2'], setSurfaceFilter)}
-                  onDblClick={() => handleFilterDblClick(['1', '2'], setSurfaceFilter)}
-                >
-                  Dirt
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="controls-row">
-          <div className="toggle-group-row">
-            <div className="toggle-group-item">
-              <div className="toggle-group-label">Accel Type:</div>
-              <div className="toggle-group accel-toggle-group">
-                {Object.entries(ACCEL_TYPES).map(([key, label]) => (
-                  <button
-                    key={key}
-                    className={`toggle-btn accel-toggle ${accelTypeFilter.includes(key) ? 'active' : ''}`}
-                    title={ACCEL_DESCRIPTIONS[key]}
-                    style={accelTypeFilter.includes(key) ? {
-                      background: ACCEL_TYPE_COLORS[key].bg,
-                      color: ACCEL_TYPE_COLORS[key].color,
-                      borderColor: ACCEL_TYPE_COLORS[key].border
-                    } : {}}
-                    onClick={() => handleFilterClick(key, accelTypeFilter, ALL_ACCEL_TYPES, setAccelTypeFilter)}
-                    onDblClick={() => handleFilterDblClick(ALL_ACCEL_TYPES, setAccelTypeFilter)}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="toggle-group-item">
-              <div className="toggle-group-label">Map View:</div>
-              <div className="toggle-group">
-                <button
-                  className={`toggle-btn ${showSkillsOnMap ? 'active' : ''}`}
-                  onClick={() => setShowSkillsOnMap(!showSkillsOnMap)}
-                >
-                  {showSkillsOnMap ? '✓ Skills' : 'Show Skills'}
-                </button>
-                <button
-                  className={`toggle-btn ${showSkillPreviews ? 'active' : ''}`}
-                  onClick={() => setShowSkillPreviews(!showSkillPreviews)}
-                >
-                  {showSkillPreviews ? '✓ Details' : 'Show Details'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="controls-row sort-row">
-          <div className="toggle-group-label">Sort:</div>
-          <select
-            className="filter-select sort-select"
-            value={sortKey}
-            onChange={(e) => setSortKey((e.target as HTMLSelectElement).value as any)}
-          >
-            <option value="id">By Racecourse (ID)</option>
-            <option value="distance">By Length</option>
-            <option value="surface">By Ground Type</option>
-          </select>
-          <button
-            className={`toggle-btn sort-order-btn ${sortOrder === 'desc' ? 'active' : ''}`}
-            onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
-          >
-            {sortOrder === 'asc' ? '↑ Ascending' : '↓ Descending'}
-          </button>
-        </div>
-      </div>
 
       {/* Skill Selector */}
       <div className={`skill-selector ${isSkillPickerExpanded ? 'expanded' : 'collapsed'}`}>
@@ -325,24 +209,211 @@ function App() {
         )}
       </div>
 
-      <div className="course-grid">
-        {sortedCourses.map(course => (
-          <CourseCard
-            key={course.id}
-            course={course}
-            isFocused={focusedId === course.id}
-            onToggleFocus={toggleFocus}
-            selectedSkills={selectedSkills}
-            showSkillsOnMap={showSkillsOnMap}
-            showSkillPreviews={showSkillPreviews}
-            onToggleSkillPreviews={() => setShowSkillPreviews(!showSkillPreviews)}
-          />
-        ))}
-      </div>
+      {/* Track List Fragment (Permanent) */}
+      <Fragment>
+        <div className="controls">
+          <div className="controls-row">
+            <div className="search-wrap">
+              <input
+                type="text"
+                placeholder="Search Track / Length / ID..."
+                className="search-input"
+                value={search}
+                onInput={(e) => setSearch((e.target as HTMLInputElement).value)}
+              />
+              <div className="search-hint">Use <b>spaces</b> for AND, <b>commas/semicolons</b> for OR (e.g. "tokyo 2000; kyoto")</div>
+            </div>
+          </div>
 
-      {filteredCourses.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
-          No courses found matching your filters.
+          <div className="controls-row">
+            <MultiSelectDropdown
+              label="Racecourse"
+              options={uniqueRaceTracks}
+              selectedValues={raceTrackFilter}
+              onToggle={(id) => handleFilterClick(id, raceTrackFilter, uniqueRaceTracks.map(t => t[0].toString()), setRaceTrackFilter)}
+              onClear={() => setRaceTrackFilter([])}
+            />
+          </div>
+
+          <div className="controls-row">
+            <div className="toggle-group-row">
+              <div className="toggle-group-item">
+                <div className="toggle-group-label">Distance:</div>
+                <div className="toggle-group">
+                  {Object.keys(DISTANCE_TYPES).map(id => (
+                    <button
+                      key={id}
+                      className={`toggle-btn ${distanceFilter.includes(id) ? 'active' : ''}`}
+                      onClick={() => handleFilterClick(id, distanceFilter, ['1', '2', '3', '4'], setDistanceFilter)}
+                      onDblClick={() => handleFilterDblClick(['1', '2', '3', '4'], setDistanceFilter)}
+                    >
+                      {DISTANCE_TYPES[id as keyof typeof DISTANCE_TYPES]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="toggle-group-item">
+                <div className="toggle-group-label">Ground Type:</div>
+                <div className="toggle-group">
+                  <button
+                    className={`toggle-btn turf ${surfaceFilter.includes('1') ? 'active' : ''}`}
+                    onClick={() => handleFilterClick('1', surfaceFilter, ['1', '2'], setSurfaceFilter)}
+                    onDblClick={() => handleFilterDblClick(['1', '2'], setSurfaceFilter)}
+                  >
+                    Turf
+                  </button>
+                  <button
+                    className={`toggle-btn dirt ${surfaceFilter.includes('2') ? 'active' : ''}`}
+                    onClick={() => handleFilterClick('2', surfaceFilter, ['1', '2'], setSurfaceFilter)}
+                    onDblClick={() => handleFilterDblClick(['1', '2'], setSurfaceFilter)}
+                  >
+                    Dirt
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="controls-row">
+            <div className="toggle-group-row">
+              <div className="toggle-group-item">
+                <div className="toggle-group-label">Accel Type:</div>
+                <div className="toggle-group accel-toggle-group">
+                  {Object.entries(ACCEL_TYPES).map(([key, label]) => (
+                    <button
+                      key={key}
+                      className={`toggle-btn accel-toggle ${accelTypeFilter.includes(key) ? 'active' : ''}`}
+                      title={ACCEL_DESCRIPTIONS[key]}
+                      style={accelTypeFilter.includes(key) ? {
+                        background: ACCEL_TYPE_COLORS[key].bg,
+                        color: ACCEL_TYPE_COLORS[key].color,
+                        borderColor: ACCEL_TYPE_COLORS[key].border
+                      } : {}}
+                      onClick={() => handleFilterClick(key, accelTypeFilter, ALL_ACCEL_TYPES, setAccelTypeFilter)}
+                      onDblClick={() => handleFilterDblClick(ALL_ACCEL_TYPES, setAccelTypeFilter)}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="toggle-group-item">
+                <div className="toggle-group-label">Map View:</div>
+                <div className="toggle-group">
+                  <button
+                    className={`toggle-btn ${showSkillsOnMap ? 'active' : ''}`}
+                    onClick={() => setShowSkillsOnMap(!showSkillsOnMap)}
+                  >
+                    {showSkillsOnMap ? '✓ Skills' : 'Show Skills'}
+                  </button>
+                  <button
+                    className={`toggle-btn ${showSkillPreviews ? 'active' : ''}`}
+                    onClick={() => setShowSkillPreviews(!showSkillPreviews)}
+                  >
+                    {showSkillPreviews ? '✓ Details' : 'Show Details'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="controls-row sort-row">
+            <div className="toggle-group-label">Sort:</div>
+            <select
+              className="filter-select sort-select"
+              value={sortKey}
+              onChange={(e) => setSortKey((e.target as HTMLSelectElement).value as any)}
+            >
+              <option value="id">By Racecourse (ID)</option>
+              <option value="distance">By Length</option>
+              <option value="surface">By Ground Type</option>
+            </select>
+            <button
+              className={`toggle-btn sort-order-btn ${sortOrder === 'desc' ? 'active' : ''}`}
+              onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+            >
+              {sortOrder === 'asc' ? '↑ Ascending' : '↓ Descending'}
+            </button>
+          </div>
+        </div>
+
+        <div className="course-grid">
+          {sortedCourses.map(course => (
+            <CourseCard
+              key={course.id}
+              course={course}
+              isFocused={focusedId === course.id}
+              onToggleFocus={toggleFocus}
+              selectedSkills={selectedSkills}
+              showSkillsOnMap={showSkillsOnMap}
+              showSkillPreviews={showSkillPreviews}
+              onToggleSkillPreviews={() => setShowSkillPreviews(!showSkillPreviews)}
+            />
+          ))}
+        </div>
+
+        {filteredCourses.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
+            No courses found matching your filters.
+          </div>
+        )}
+      </Fragment>
+
+      {/* Draft Visaliser Overlay */}
+      {isDrafterOpen && (
+        <div className="draft-overlay">
+          <div className="draft-overlay-container">
+            <button className="draft-overlay-close" onClick={() => setIsDrafterOpen(false)}>✕</button>
+            <DraftVisualiser
+              courses={mergedCourses}
+              selectedSkills={selectedSkills}
+              skillList={skillList}
+              selectedSkillIds={selectedSkillIds}
+              onToggleSkill={handleSkillToggle}
+              showSkillsOnMap={showSkillsOnMap}
+              showSkillPreviews={showSkillPreviews}
+              onToggleSkillPreviews={() => setShowSkillPreviews(!showSkillPreviews)}
+              draft={draft}
+              onUpdateDraft={setDraft}
+              focusedId={focusedId}
+              onSetFocusedId={setFocusedId}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Floating Action Button */}
+      <button 
+        className={`fab-drafter ${isDrafterOpen ? 'hidden' : ''}`}
+        onClick={() => setIsDrafterOpen(true)}
+        title="Open Draft Visualiser"
+      >
+        Draft 5v5
+      </button>
+
+      {/* Course Detail Modal */}
+      {focusedId && (
+        <div className="course-modal-overlay" onClick={() => setFocusedId(null)}>
+          <div className="course-modal-container" onClick={e => e.stopPropagation()}>
+            <button className="course-modal-close" onClick={() => setFocusedId(null)}>✕</button>
+            {(() => {
+              const focusedCourse = mergedCourses.find(c => c.id === focusedId);
+              return focusedCourse ? (
+                <CourseCard
+                  course={focusedCourse}
+                  isFocused={true}
+                  isModal={true}
+                  onToggleFocus={() => setFocusedId(null)}
+                  selectedSkills={selectedSkills}
+                  showSkillsOnMap={showSkillsOnMap}
+                  showSkillPreviews={showSkillPreviews}
+                  onToggleSkillPreviews={() => setShowSkillPreviews(!showSkillPreviews)}
+                />
+              ) : null;
+            })()}
+          </div>
         </div>
       )}
 

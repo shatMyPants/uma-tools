@@ -10,6 +10,7 @@ import skillData from '../skill_data.json';
 interface CourseCardProps {
   course: any;
   isFocused: boolean;
+  isModal?: boolean;
   onToggleFocus: (id: string) => void;
   selectedSkills: any[];
   showSkillsOnMap: boolean;
@@ -22,6 +23,7 @@ const sd = skillData as Record<string, SkillEntry>;
 export function CourseCard({
   course,
   isFocused,
+  isModal = false,
   onToggleFocus,
   selectedSkills,
   showSkillsOnMap,
@@ -79,8 +81,8 @@ export function CourseCard({
 
   return (
     <div
-      className={`course-card ${course.surface === 1 ? 'turf' : 'dirt'} ${isFocused ? 'focused' : ''}`}
-      onClick={() => onToggleFocus(course.id)}
+      className={`course-card ${course.surface === 1 ? 'turf' : 'dirt'} ${isModal ? 'modal-view' : ''}`}
+      onClick={() => !isModal && onToggleFocus(course.id)}
     >
       <div className="course-header">
         <div className="course-title-wrap">
@@ -118,8 +120,8 @@ export function CourseCard({
         <RaceTrack
           courseid={parseInt(course.id)}
           regions={showSkillsOnMap ? regions : []}
-          width={isFocused ? 1200 : 800}
-          height={isFocused ? 240 : 120}
+          width={isModal ? 1200 : 800}
+          height={isModal ? 240 : 120}
           xOffset={0}
           yOffset={0}
         />
@@ -142,13 +144,13 @@ export function CourseCard({
 
       {skillPreviews.length > 0 && (
         <div 
-          className={`skill-previews-container ${!showSkillPreviews ? 'collapsed' : ''}`}
+          className={`skill-previews-container ${(!showSkillPreviews && !isModal) ? 'collapsed' : ''}`}
           onClick={(e) => {
             e.stopPropagation();
-            onToggleSkillPreviews();
+            if (!isModal) onToggleSkillPreviews();
           }}
         >
-          {!showSkillPreviews ? (
+          {(!showSkillPreviews && !isModal) ? (
             <div className="skill-previews-collapsed">
               <span>Click to show {skillPreviews.length} skills</span>
               <span className="chevron">▶</span>
